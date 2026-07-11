@@ -2,10 +2,8 @@
 
 # Задание 1
 
-1. Спроектируйте to be архитектуру КиноБездны, разделив всю систему на отдельные домены и организовав интеграционное взаимодействие и единую точку вызова сервисов.
-Результат представьте в виде контейнерной диаграммы в нотации С4.
-Добавьте ссылку на файл в этот шаблон
-[ссылка на файл](ссылка)
+1. To be архитектура КиноБездны - [containers.puml](https://github.com/primakin/practicum_architecture_cinemaabyss/blob/cinema/diagrams/containers.puml).
+![схема](https://github.com/primakin/practicum_architecture_cinemaabyss/blob/cinema/diagrams/containers.png?raw=true)
 
 # Задание 2
 
