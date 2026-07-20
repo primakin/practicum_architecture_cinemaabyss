@@ -231,6 +231,12 @@ cat .docker/config.json | base64
 #### Шаг 3
 Добавьте сюда скриншота вывода при вызове https://cinemaabyss.example.com/api/movies и  скриншот вывода event-service после вызова тестов.
 
+Скриншот вывода event-service
+![скриншот вывода event-service](https://github.com/primakin/practicum_architecture_cinemaabyss/blob/cinema/screenshots/kuber_events_service.png?raw=true)
+
+Скриншот вывода при вызове https://cinemaabyss.example.com/api/movies
+![скриншот вывода movies](https://github.com/primakin/practicum_architecture_cinemaabyss/blob/cinema/screenshots/kuber_movies.png?raw=true)
+
 
 # Задание 4
 Для простоты дальнейшего обновления и развертывания вам как архитектуру необходимо так же реализовать helm-чарты для прокси-сервиса и проверить работу 
