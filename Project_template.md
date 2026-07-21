@@ -312,6 +312,12 @@ minikube tunnel
 https://cinemaabyss.example.com/api/movies
 и приложите скриншот развертывания helm и вывода https://cinemaabyss.example.com/api/movies
 
+Скриншот развертывания helm
+![скриншот helm](https://github.com/primakin/practicum_architecture_cinemaabyss/blob/cinema/screenshots/helm_deploy.png?raw=true)
+
+Скриншот вывода movies
+![скриншот movies](https://github.com/primakin/practicum_architecture_cinemaabyss/blob/cinema/screenshots/helm_movies.png?raw=true)
+
 ## Удаляем все
 
 ```bash
