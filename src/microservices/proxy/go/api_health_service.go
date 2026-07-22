@@ -56,12 +56,8 @@ func (s *HealthAPIService) GetMoviesServiceHealth(ctx context.Context) (ImplResp
 		return Response(resp.StatusCode, Error{}), fmt.Errorf("Unexpected status code: %d", resp.StatusCode)
 	}
 
-	decoder := json.NewDecoder(resp.Body)
-	if _, err := decoder.Token(); err != nil {
-		return Response(http.StatusInternalServerError, Error{}), err
-	}
-
 	var healthResponse GetMoviesServiceHealth200Response
+	decoder := json.NewDecoder(resp.Body)
 	if err := decoder.Decode(&healthResponse); err != nil {
 		return Response(http.StatusInternalServerError, Error{}), err
 	}
@@ -83,12 +79,8 @@ func (s *HealthAPIService) GetEventsServiceHealth(ctx context.Context) (ImplResp
 		return Response(resp.StatusCode, Error{}), fmt.Errorf("Unexpected status code: %d", resp.StatusCode)
 	}
 
-	decoder := json.NewDecoder(resp.Body)
-	if _, err := decoder.Token(); err != nil {
-		return Response(http.StatusInternalServerError, Error{}), err
-	}
-
 	var healthResponse GetMoviesServiceHealth200Response
+	decoder := json.NewDecoder(resp.Body)
 	if err := decoder.Decode(&healthResponse); err != nil {
 		return Response(http.StatusInternalServerError, Error{}), err
 	}

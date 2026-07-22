@@ -38,6 +38,15 @@ func NewPaymentsAPIService(monolithUrl string) *PaymentsAPIService {
 
 // GetAllPayments - Получение списка всех платежей
 func (s *PaymentsAPIService) GetAllPayments(ctx context.Context, userId int32) (ImplResponse, error) {
+	id, ok := ctx.Value("id").(string)
+	if ok {
+		return s.GetPaymentById(ctx, id)
+	} else {
+		return s.GetAllPaymentsImpl(ctx, userId)
+	}
+}
+
+func (s *PaymentsAPIService) GetAllPaymentsImpl(ctx context.Context, userId int32) (ImplResponse, error) {
 	url := fmt.Sprintf("%s/api/payments?user_id=%d", s.monolithUrl, userId)
 
 	resp, err := s.httpClient.Get(url)
@@ -65,6 +74,28 @@ func (s *PaymentsAPIService) GetAllPayments(ctx context.Context, userId int32) (
 	}
 
 	return Response(http.StatusOK, payments), nil
+}
+
+func (s *PaymentsAPIService) GetPaymentById(ctx context.Context, id string) (ImplResponse, error) {
+	url := fmt.Sprintf("%s/api/payments?id=%s", s.monolithUrl, id)
+
+	resp, err := s.httpClient.Get(url)
+	if err != nil {
+		return Response(http.StatusInternalServerError, Error{}), err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return Response(resp.StatusCode, Error{}), fmt.Errorf("Unexpected status code: %d", resp.StatusCode)
+	}
+
+	var payment Payment
+	decoder := json.NewDecoder(resp.Body)
+	if err := decoder.Decode(&payment); err != nil {
+		return Response(http.StatusInternalServerError, Error{}), err
+	}
+
+	return Response(http.StatusOK, payment), nil
 }
 
 // CreatePayment - Создание нового платежа

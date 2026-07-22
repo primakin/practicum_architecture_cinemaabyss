@@ -3,7 +3,7 @@
 /*
  * CinemaAbyss API
  *
- * API спецификация для системы CinemaAbyss, включающая монолит и микросервисы.  Система CinemaAbyss представляет собой платформу для управления фильмами, пользователями, платежами и подписками. Архитектура системы включает монолитное приложение и выделенные микросервисы. 
+ * API спецификация для системы CinemaAbyss, включающая монолит и микросервисы.  Система CinemaAbyss представляет собой платформу для управления фильмами, пользователями, платежами и подписками. Архитектура системы включает монолитное приложение и выделенные микросервисы.
  *
  * API version: 1.0.0
  * Contact: support@cinemaabyss.com
@@ -12,6 +12,7 @@
 package openapi
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"strings"
@@ -19,7 +20,7 @@ import (
 
 // PaymentsAPIController binds http requests to an api service and writes the service results to the http response
 type PaymentsAPIController struct {
-	service PaymentsAPIServicer
+	service      PaymentsAPIServicer
 	errorHandler ErrorHandler
 }
 
@@ -83,8 +84,6 @@ func (c *PaymentsAPIController) OrderedRoutes() []Route {
 	}
 }
 
-
-
 // GetAllPayments - Получение списка всех платежей
 func (c *PaymentsAPIController) GetAllPayments(w http.ResponseWriter, r *http.Request) {
 	query, err := parseQuery(r.URL.RawQuery)
@@ -106,7 +105,11 @@ func (c *PaymentsAPIController) GetAllPayments(w http.ResponseWriter, r *http.Re
 		userIdParam = param
 	} else {
 	}
-	result, err := c.service.GetAllPayments(r.Context(), userIdParam)
+	ctx := r.Context()
+	if r.URL.Query().Has("id") {
+		ctx = context.WithValue(ctx, "id", r.URL.Query().Get("id"))
+	}
+	result, err := c.service.GetAllPayments(ctx, userIdParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

@@ -38,6 +38,15 @@ func NewSubscriptionsAPIService(monolithUrl string) *SubscriptionsAPIService {
 
 // GetAllSubscriptions - Получение списка всех подписок
 func (s *SubscriptionsAPIService) GetAllSubscriptions(ctx context.Context, userId int32) (ImplResponse, error) {
+	id, ok := ctx.Value("id").(string)
+	if ok {
+		return s.GetSubscriptionByIdImpl(ctx, id)
+	} else {
+		return s.GetAllSubscriptionsImpl(ctx, userId)
+	}
+}
+
+func (s *SubscriptionsAPIService) GetAllSubscriptionsImpl(ctx context.Context, userId int32) (ImplResponse, error) {
 	url := fmt.Sprintf("%s/api/subscriptions?user_id=%d", s.monolithUrl, userId)
 
 	resp, err := s.httpClient.Get(url)
@@ -65,6 +74,28 @@ func (s *SubscriptionsAPIService) GetAllSubscriptions(ctx context.Context, userI
 	}
 
 	return Response(http.StatusOK, subscriptions), nil
+}
+
+func (s *SubscriptionsAPIService) GetSubscriptionByIdImpl(ctx context.Context, id string) (ImplResponse, error) {
+	url := fmt.Sprintf("%s/api/subscriptions?id=%s", s.monolithUrl, id)
+
+	resp, err := s.httpClient.Get(url)
+	if err != nil {
+		return Response(http.StatusInternalServerError, Error{}), err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return Response(resp.StatusCode, Error{}), fmt.Errorf("Unexpected status code: %d", resp.StatusCode)
+	}
+
+	var subscription Subscription
+	decoder := json.NewDecoder(resp.Body)
+	if err := decoder.Decode(&subscription); err != nil {
+		return Response(http.StatusInternalServerError, Error{}), err
+	}
+
+	return Response(http.StatusOK, subscription), nil
 }
 
 // CreateSubscription - Создание новой подписки

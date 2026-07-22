@@ -61,6 +61,15 @@ func (s *MoviesAPIService) GetEndpointForNextRequest() string {
 
 // GetAllMovies - Получение списка всех фильмов
 func (s *MoviesAPIService) GetAllMovies(ctx context.Context) (ImplResponse, error) {
+	id, ok := ctx.Value("id").(string)
+	if ok {
+		return s.GetMovieByIdImpl(ctx, id)
+	} else {
+		return s.GetAllMoviesImpl(ctx)
+	}
+}
+
+func (s *MoviesAPIService) GetAllMoviesImpl(ctx context.Context) (ImplResponse, error) {
 	url := fmt.Sprintf("%s/api/movies", s.GetEndpointForNextRequest())
 	log.Printf("Request will be sent to %s", url)
 
@@ -89,6 +98,29 @@ func (s *MoviesAPIService) GetAllMovies(ctx context.Context) (ImplResponse, erro
 	}
 
 	return Response(http.StatusOK, movies), nil
+}
+
+func (s *MoviesAPIService) GetMovieByIdImpl(ctx context.Context, id string) (ImplResponse, error) {
+	url := fmt.Sprintf("%s/api/movies?id=%s", s.GetEndpointForNextRequest(), id)
+	log.Printf("Request will be sent to %s", url)
+
+	resp, err := s.httpClient.Get(url)
+	if err != nil {
+		return Response(http.StatusInternalServerError, Error{}), err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return Response(resp.StatusCode, Error{}), fmt.Errorf("Unexpected status code: %d", resp.StatusCode)
+	}
+
+	var movie Movie
+	decoder := json.NewDecoder(resp.Body)
+	if err := decoder.Decode(&movie); err != nil {
+		return Response(http.StatusInternalServerError, Error{}), err
+	}
+
+	return Response(http.StatusOK, movie), nil
 }
 
 // CreateMovie - Создание нового фильма

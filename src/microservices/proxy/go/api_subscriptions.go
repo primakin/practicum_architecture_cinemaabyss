@@ -3,7 +3,7 @@
 /*
  * CinemaAbyss API
  *
- * API спецификация для системы CinemaAbyss, включающая монолит и микросервисы.  Система CinemaAbyss представляет собой платформу для управления фильмами, пользователями, платежами и подписками. Архитектура системы включает монолитное приложение и выделенные микросервисы. 
+ * API спецификация для системы CinemaAbyss, включающая монолит и микросервисы.  Система CinemaAbyss представляет собой платформу для управления фильмами, пользователями, платежами и подписками. Архитектура системы включает монолитное приложение и выделенные микросервисы.
  *
  * API version: 1.0.0
  * Contact: support@cinemaabyss.com
@@ -12,6 +12,7 @@
 package openapi
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"strings"
@@ -19,7 +20,7 @@ import (
 
 // SubscriptionsAPIController binds http requests to an api service and writes the service results to the http response
 type SubscriptionsAPIController struct {
-	service SubscriptionsAPIServicer
+	service      SubscriptionsAPIServicer
 	errorHandler ErrorHandler
 }
 
@@ -83,8 +84,6 @@ func (c *SubscriptionsAPIController) OrderedRoutes() []Route {
 	}
 }
 
-
-
 // GetAllSubscriptions - Получение списка всех подписок
 func (c *SubscriptionsAPIController) GetAllSubscriptions(w http.ResponseWriter, r *http.Request) {
 	query, err := parseQuery(r.URL.RawQuery)
@@ -106,7 +105,11 @@ func (c *SubscriptionsAPIController) GetAllSubscriptions(w http.ResponseWriter, 
 		userIdParam = param
 	} else {
 	}
-	result, err := c.service.GetAllSubscriptions(r.Context(), userIdParam)
+	ctx := r.Context()
+	if r.URL.Query().Has("id") {
+		ctx = context.WithValue(ctx, "id", r.URL.Query().Get("id"))
+	}
+	result, err := c.service.GetAllSubscriptions(ctx, userIdParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

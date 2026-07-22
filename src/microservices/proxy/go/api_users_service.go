@@ -38,6 +38,15 @@ func NewUsersAPIService(monolithUrl string) *UsersAPIService {
 
 // GetAllUsers - Получение списка всех пользователей
 func (s *UsersAPIService) GetAllUsers(ctx context.Context) (ImplResponse, error) {
+	id, ok := ctx.Value("id").(string)
+	if ok {
+		return s.GetUserByIdImpl(ctx, id)
+	} else {
+		return s.GetAllUsersImpl(ctx)
+	}
+}
+
+func (s *UsersAPIService) GetAllUsersImpl(ctx context.Context) (ImplResponse, error) {
 	url := fmt.Sprintf("%s/api/users", s.monolithUrl)
 
 	resp, err := s.httpClient.Get(url)
@@ -65,6 +74,28 @@ func (s *UsersAPIService) GetAllUsers(ctx context.Context) (ImplResponse, error)
 	}
 
 	return Response(http.StatusOK, users), nil
+}
+
+func (s *UsersAPIService) GetUserByIdImpl(ctx context.Context, id string) (ImplResponse, error) {
+	url := fmt.Sprintf("%s/api/users?id=%s", s.monolithUrl, id)
+
+	resp, err := s.httpClient.Get(url)
+	if err != nil {
+		return Response(http.StatusInternalServerError, Error{}), err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return Response(resp.StatusCode, Error{}), fmt.Errorf("Unexpected status code: %d", resp.StatusCode)
+	}
+
+	var user User
+	decoder := json.NewDecoder(resp.Body)
+	if err := decoder.Decode(&user); err != nil {
+		return Response(http.StatusInternalServerError, Error{}), err
+	}
+
+	return Response(http.StatusOK, user), nil
 }
 
 // CreateUser - Создание нового пользователя
