@@ -1,0 +1,47 @@
+@startuml cinemaabyss_containers
+
+title "Cinemaabyss containers diagram"
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+!pragma layout smetana
+
+Person_Ext(notebook_ext, "Desktop")
+Person_Ext(smart_tv_ext, "Smart TV")
+Person_Ext(mobile_ext, "Mobile")
+System_Ext(recommendations_ext, "Recommendations system", "RabbitMQ")
+System_Ext(payments_ext, "External payments system")
+
+System_Boundary(system, "Cinemaabyss") {
+	Container(api, "API Gateway", "Go", "Routes requests to microservices")
+	Container(events, "Events service", "Kafka", "Processes communication between services based on events")
+	ContainerDb(db, "Database", "PostgreSQL", "Stores data")
+	
+	Container(users, "Users service", "Go", "Manages users")
+	Container(movies, "Movies service", "Go", "Processes movie metadata")
+	Container(payments, "Payments service", "Go", "Processes payments")
+	Container(subscriptions, "Subscriptions service", "Go", "Manages subscriptions")
+}
+
+Rel(notebook_ext, api, "Calls")
+Rel(smart_tv_ext, api, "Calls")
+Rel(mobile_ext, api, "Calls")
+
+Rel(api, users, "Calls")
+Rel(api, movies, "Calls")
+Rel(api, payments, "Calls")
+Rel(api, subscriptions, "Calls")
+
+Rel(users, db, "Reads/writes")
+Rel(movies, db, "Reads/writes")
+Rel(payments, db, "Reads/writes")
+Rel(subscriptions, db, "Reads/writes")
+
+Rel(payments, payments_ext, "Calls")
+BiRel(recommendations_ext, movies, "Reads/writes")
+
+Rel(users, events, "Writes")
+Rel(payments, events, "Writes")
+Rel(movies, events, "Writes")
+
+@enduml

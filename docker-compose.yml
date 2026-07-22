@@ -63,6 +63,7 @@ services:
     environment:
       PORT: 8080
       DB_CONNECTION_STRING: postgres://postgres:postgres_password@postgres:5432/cinemaabyss?sslmode=disable
+    restart: unless-stopped
     networks:
       - cinemaabyss-network
 
@@ -79,6 +80,7 @@ services:
     environment:
       PORT: 8081
       DB_CONNECTION_STRING: postgres://postgres:postgres_password@postgres:5432/cinemaabyss?sslmode=disable
+    restart: unless-stopped
     networks:
       - cinemaabyss-network
 
@@ -98,6 +100,7 @@ services:
       KAFKA_BROKERS: kafka:9092
     networks:
       - cinemaabyss-network
+    restart: unless-stopped
 
   # Proxy Service (API Gateway)
   proxy-service:
